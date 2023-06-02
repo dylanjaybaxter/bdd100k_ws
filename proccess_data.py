@@ -183,7 +183,7 @@ def main_func(args):
     proccessed = 0
     for split in ["train", "val"]:
         # Find the image and label paths for the split
-        label_path = os.path.join(source_path, "labels", "box_track20", split)
+        label_path = os.path.join(source_path, "labels", "box_track_20", split)
         vid_path = os.path.join(source_path, "images", "track", split)
         label_path_dest = os.path.join(dest_path, split, "labels")
         im_path_dest = os.path.join(dest_path, split, "images")
