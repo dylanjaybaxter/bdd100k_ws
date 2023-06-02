@@ -4,14 +4,15 @@ import os
 import os.path as path
 import shutil
 import yaml
+import argparse
 
-label_path = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\labels\\"
-vid_path = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\images\\"
-
-dest_path = "C:\\Users\\dylan\\Documents\\Data\\YOLO_MOTS"
-preview = False
-dataset_limit = 50000
-overwrite_dataset = True
+# Parameter Defaults
+label_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\labels\\"
+vid_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\images\\"
+dest_path_d = "C:\\Users\\dylan\\Documents\\Data\\YOLO_MOTS"
+preview_d = False
+dataset_limit_d = 1000000
+overwrite_dataset_d = True
 
 class_dict = {
     "pedestrian": 0,
@@ -126,139 +127,169 @@ def win2bash(powershell_filepath):
 
   return powershell_filepath
 
+'''Function to add arguments'''
+def init_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--src', type=str, default=vid_path_d, help='Path to bdd100k dataset')
+    parser.add_argument('--dst', type=str, default=dest_path_d, help='Path to save processed data')
+    parser.add_argument('--prev', type=bool, default=False, help='Preview conversion')
+    parser.add_argument('--owrt', type=bool, default=False, help='Overwrite Dataset')
+    parser.add_argument('--limit', type=int, default=1000000, help='Limit of images processed')
+    return parser
 
+def main_func(args):
+    # Assign arguments
+    source_path = args.src
+    dest_path = args.dst
+    overwrite_dataset = args.owrt
+    dataset_limit = args.limit
+    preview = args.prev
 
-# Create File Sttructure
-train_path = os.path.join(dest_path, "train")
-val_path = os.path.join(dest_path, "val")
-test_path = os.path.join(dest_path, "test")
-train_vid_path = os.path.join(dest_path, "vids")
-train_im_path = os.path.join(dest_path, "train", "images")
-train_label_path = os.path.join(dest_path, "train", "labels")
-mkdir_safe(dest_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(train_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(train_vid_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(train_label_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(train_im_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(val_path, overwrite_contents=overwrite_dataset)
-mkdir_safe(test_path, overwrite_contents=overwrite_dataset)
+    # Create File Structure
+    train_path = os.path.join(dest_path, "train")
+    val_path = os.path.join(dest_path, "val")
+    test_path = os.path.join(dest_path, "test")
+    train_vid_path = os.path.join(dest_path, "vids")
+    train_im_path = os.path.join(dest_path, "train", "images")
+    train_label_path = os.path.join(dest_path, "train", "labels")
+    val_im_path = os.path.join(dest_path, "val", "images")
+    val_label_path = os.path.join(dest_path, "val", "labels")
+    #val_label_path = os.path.join(dest_path, "val", "vids")
+    mkdir_safe(dest_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(train_path, overwrite_contents=overwrite_dataset)
+    #mkdir_safe(train_vid_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(train_label_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(train_im_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(val_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(val_label_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(val_im_path, overwrite_contents=overwrite_dataset)
+    #mkdir_safe(val_vid_path, overwrite_contents=overwrite_dataset)
+    mkdir_safe(test_path, overwrite_contents=overwrite_dataset)
 
-# Create .yaml for ultralytics API
-write_yaml_file(filename="data.yaml",
-                root_path=dest_path,
-                train_path=train_path,
-                val_path=val_path,
-                test_path=test_path,
-                class_dict=class_dict)
-write_yaml_file(filename="data_bash.yaml",
-                root_path=dest_path,
-                train_path=win2bash(train_path),
-                val_path=win2bash(train_path),
-                test_path=win2bash(test_path),
-                class_dict=class_dict)
+    # Create .yaml for ultralytics API
+    write_yaml_file(filename="data.yaml",
+                    root_path=dest_path,
+                    train_path=train_path,
+                    val_path=val_path,
+                    test_path=test_path,
+                    class_dict=class_dict)
+    write_yaml_file(filename="data_bash.yaml",
+                    root_path=dest_path,
+                    train_path=win2bash(train_path),
+                    val_path=win2bash(train_path),
+                    test_path=win2bash(test_path),
+                    class_dict=class_dict)
 
+    proccessed = 0
+    for split in ["train", "val"]:
+        # Find the image and label paths for the split
+        label_path = os.path.join(source_path, "labels", "track", split)
+        vid_path = os.path.join(source_path, "images", "track", split)
+        label_path_dest = os.path.join(dest_path, split, "labels")
+        im_path_dest = os.path.join(dest_path, split, "images")
+        #vid_path_dest = os.path.join(dest_path, split, "vids")
 
-# Get Label IDs
-label_ids = clean_list(os.listdir(label_path), '.json')
+        # Get Label IDs
+        label_ids = clean_list(os.listdir(label_path), '.json')
 
-# Get existing image labels from the labels folder
-existing_labels = clean_list(os.listdir(train_label_path), ".txt")
-skipping = True
-proccessed = 0
-for id in label_ids:
-    # Pull Json for the given video
-    with open(path.join(label_path, id+".json")) as file:
-        label_data = json.load(file)
+        # Get existing image labels from the labels folder
+        existing_labels = clean_list(os.listdir(label_path_dest), ".txt")
+        skipping = True
 
-    # Define Filepath For Frames
-    im_path = path.join(vid_path, id)
+        for id in label_ids:
+            # Pull Json for the given video
+            with open(path.join(label_path, id+".json")) as file:
+                label_data = json.load(file)
 
-    # Create Vid Folder
-    mkdir_safe(path.join(train_vid_path, id), overwrite_contents=False)
+            # Define Filepath For Frames
+            im_path = path.join(vid_path, id)
 
-    # For Each Frame
-    for frame_data in label_data:
-        if frame_data["name"][:-4] not in existing_labels:
-            if skipping is True:
-                print("Beginning to process real frames...")
-            skipping = False
-            # Get Image
-            im = cv.imread(path.join(im_path, frame_data["name"]))
-            im_w = im.shape[1]
-            im_h = im.shape[0]
-            im_overlay = im
+            # For Each Frame
+            for frame_data in label_data:
+                if frame_data["name"][:-4] not in existing_labels:
+                    if skipping is True:
+                        print("Beginning to process real frames...")
+                    skipping = False
+                    # Get Image
+                    im = cv.imread(path.join(im_path, frame_data["name"]))
+                    im_w = im.shape[1]
+                    im_h = im.shape[0]
+                    im_overlay = im
 
-            # Initialize Label File
-            f = open(path.join(train_label_path, frame_data["name"][:-4]+".txt"), 'w')
-            f.close()
+                    # Initialize Label File
+                    f = open(path.join(label_path_dest, frame_data["name"][:-4]+".txt"), 'w')
+                    f.close()
 
-            # Get Bounding Box Data
-            for detection in frame_data["labels"]:
-                cat = detection["category"]
-                if cat not in class_dict:
-                    print("No ID for: "+ cat+ "in "+frame_data["name"]+", assigning to \'other vehicle\'")
-                    cat_id = class_dict["other vehicle"]
+                    # Get Bounding Box Data
+                    for detection in frame_data["labels"]:
+                        cat = detection["category"]
+                        if cat not in class_dict:
+                            print("No ID for: "+ cat+ "in "+frame_data["name"]+", assigning to \'other vehicle\'")
+                            cat_id = class_dict["other vehicle"]
+                        else:
+                            cat_id = class_dict[cat]
+                        x1 = int(detection["box2d"]["x1"])
+                        x2 = int(detection["box2d"]["x2"])
+                        y1 = int(detection["box2d"]["y1"])
+                        y2 = int(detection["box2d"]["y2"])
+                        w = abs(x2-x1)
+                        h = abs(y2-y1)
+                        cx = x1+abs(x1-x2)/2
+                        cy = y1+abs(y1-y2)/2
+
+                        norms = [x1 / im_w, y1 / im_h, x2 / im_w, y2 / im_h]
+                        if max(norms) > 1:
+                            print("FORMATTING: OUT OF BOUNDS ERROR")
+
+                        # Normalize values by im dimensions and save to file, YOLO format
+                        with open(path.join(label_path_dest, frame_data["name"][:-4]+".txt"), 'a') as file:
+                            # file.write(f"{str(SHARK_LABEL)} {str(x1 / im_w)} {str(y1 / im_h)} {str(w / im_w)} {str(h / im_h)}")
+                            file.write(f"{str(cat_id)} {str(cx / im_w)} {str(cy / im_h)} {str(w / im_w)} {str(h / im_h)}\n")
+
+                    # Copy matching image to images folder
+                    #shutil.copy(path.join(im_path, frame_data["name"]), path.join(train_vid_path, id, frame_data["name"]))
+                    shutil.copy(path.join(im_path, frame_data["name"]), path.join(im_path_dest, frame_data["name"]))
+
+                    if proccessed >= dataset_limit:
+                        break
+
+                    if preview:
+                        cv.rectangle(im_overlay, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+                        text = detection["category"] + ": " + detection["id"]
+
+                        # Define the font and font scale
+                        font = cv.FONT_HERSHEY_SIMPLEX
+                        font_scale = 0.5
+
+                        # Get the size of the text
+                        (text_width, text_height), _ = cv.getTextSize(text, font, font_scale, thickness=1)
+
+                        # Calculate the coordinates for the text
+                        text_x = x1 + (abs(x2 - x1) - text_width) // 2
+                        text_y = y1 + (abs(y2 - y1) + text_height) // 2
+
+                        # Write the text on the image
+                        cv.putText(im_overlay, text, (text_x, text_y), font, font_scale, (255, 255, 255), thickness=2)
+
+                        # Show Image
+                        cv.imshow("Dataset Preview", im_overlay)
+                        cv.waitKey(1)
                 else:
-                    cat_id = class_dict[cat]
-                x1 = int(detection["box2d"]["x1"])
-                x2 = int(detection["box2d"]["x2"])
-                y1 = int(detection["box2d"]["y1"])
-                y2 = int(detection["box2d"]["y2"])
-                w = abs(x2-x1)
-                h = abs(y2-y1)
-                cx = x1+abs(x1-x2)/2
-                cy = y1+abs(y1-y2)/2
+                    if skipping is False:
+                        print("Skipping Frames where labels already exist...")
+                    skipping = True
 
-                norms = [x1 / im_w, y1 / im_h, x2 / im_w, y2 / im_h]
-                if max(norms) > 1:
-                    print("FORMATTING: OUT OF BOUNDS ERROR")
-
-                # Normalize values by im dimensions and save to file, YOLO format
-                with open(path.join(train_label_path, frame_data["name"][:-4]+".txt"), 'a') as file:
-                    # file.write(f"{str(SHARK_LABEL)} {str(x1 / im_w)} {str(y1 / im_h)} {str(w / im_w)} {str(h / im_h)}")
-                    file.write(f"{str(cat_id)} {str(cx / im_w)} {str(cy / im_h)} {str(w / im_w)} {str(h / im_h)}\n")
-
-            # Copy matching image to images folder
-            shutil.copy(path.join(im_path, frame_data["name"]), path.join(train_vid_path, id, frame_data["name"]))
-            shutil.copy(path.join(im_path, frame_data["name"]), path.join(train_im_path, frame_data["name"]))
-
+                # Increment Frames Considered
+                proccessed = proccessed + 1
+                if proccessed >= dataset_limit:
+                    break
             if proccessed >= dataset_limit:
                 break
 
-            if preview:
-                cv.rectangle(im_overlay, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    print("Done!")
 
-                text = detection["category"] + ": " + detection["id"]
-
-                # Define the font and font scale
-                font = cv.FONT_HERSHEY_SIMPLEX
-                font_scale = 0.5
-
-                # Get the size of the text
-                (text_width, text_height), _ = cv.getTextSize(text, font, font_scale, thickness=1)
-
-                # Calculate the coordinates for the text
-                text_x = x1 + (abs(x2 - x1) - text_width) // 2
-                text_y = y1 + (abs(y2 - y1) + text_height) // 2
-
-                # Write the text on the image
-                cv.putText(im_overlay, text, (text_x, text_y), font, font_scale, (255, 255, 255), thickness=2)
-
-                # Show Image
-                cv.imshow("Dataset Preview", im_overlay)
-                cv.waitKey(1)
-        else:
-            if skipping is False:
-                print("Skipping Frames where labels already exist...")
-            skipping = True
-
-        # Increment Frames Considered
-        proccessed = proccessed + 1
-        if proccessed >= dataset_limit:
-            break
-    if proccessed >= dataset_limit:
-        break
-
-
-
-print("Done!")
+if __name__ == '__main__':
+    args =  init_parser().parse_args()
+    print(args)
+    main_func(args)
