@@ -19,7 +19,7 @@ parse_yaml() {
 }
 
 eval $(parse_yaml config.yaml)
-
+'
 cd ${data_dir}
 data_path=$(pwd)
 # Create a Copy of data.yaml for evaluating the test
@@ -51,14 +51,16 @@ new_contents="$(echo "$file_contents" | sed -e "s@^${field}:.*@${field}: ${new_v
 echo "$new_contents" > $newfile
 
 # Run the Training Script
-touch /mpac/TRAINING_IN_PROGRESS.txt
+
 cd ..
+'
+touch /mpac/TRAINING_IN_PROGRESS.txt
 yolo task=detect \
   mode=train \
   model=$model \
   project=$project_train \
   name=$experiment_train \
-  data="datasets/${newfile}" \
+  data="${data_dir}/data.yaml" \
   epochs=$epochs \
   imgsz=$im_size \
   batch=$batch \
