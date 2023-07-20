@@ -5,127 +5,22 @@ import os.path as path
 import shutil
 import yaml
 import argparse
+from math import floor
+from math import ceil
+import sys
+from utils import class_dict, coco_classes
+from utils import mkdir_safe, write_yaml_file, win2bash, clean_list, update_prog
+from utils import write_partition_info, read_validation_target, create_parition
+
 
 # Parameter Defaults
-label_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\labels\\"
-vid_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\train\\images\\"
+label_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\labels\\"
+vid_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\bdd100k\\"
 dest_path_d = "C:\\Users\\dylan\\Documents\\Data\\YOLO_MOTS"
 preview_d = False
-dataset_limit_d = 1000000
+dataset_limit_d = 3000
+partition_limit_d = 1000
 overwrite_dataset_d = True
-
-class_dict = {
-    "pedestrian": 0,
-    "other person": 0,
-    "rider": 1,
-    "bicycle": 1,
-    "car": 2,
-    "motorcycle": 3,
-    "bus": 5,
-    "train": 6,
-    "truck": 7,
-    "other vehicle": 2,
-    "trailer": 6
-}
-
-coco_classes = [
-  "person",
-  "bicycle",
-  "car",
-  "motorcycle",
-  "airplane",
-  "bus",
-  "train",
-  "truck",
-  "boat",
-  "traffic light",
-  "fire hydrant",
-  "stop sign",
-  "parking meter",
-]
-
-def clean_list(label_ids, ext):
-    # create a new list to store the cleaned up file names
-    cleaned_list = []
-
-    # iterate over each file in the original list
-    for file_name in label_ids:
-        # check if the file name contains the '.json' extension
-        if ext in file_name:
-            # remove the '.json' extension from the file name
-            file_name = file_name.replace(ext, '')
-            # add the cleaned up file name to the new list
-            cleaned_list.append(file_name)
-
-    # replace the original list with the cleaned up list
-    return cleaned_list
-
-def mkdir_safe(dir_path, overwrite_contents):
-    # Check if the directory path
-    if os.path.exists(dir_path):
-        # Check if there are files in the directory
-        if len(os.listdir(dir_path)) == 0:
-            return False
-        elif overwrite_contents:
-            shutil.rmtree(dir_path, ignore_errors=True)
-            os.mkdir(dir_path)
-            return True
-        else:
-            return False
-    else:
-        os.mkdir(dir_path)
-        return True
-
-
-def write_yaml_file(filename, root_path, train_path, val_path, test_path, class_dict):
-  """Writes a YAML file in the following format:
-
-  # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
-  path: ../datasets/coco128  # dataset root dir
-  train: images/train2017  # train images (relative to 'path') 128 images
-  val: images/train2017  # val images (relative to 'path') 128 images
-  test:  # test images (optional)
-
-  # Classes (80 COCO classes)
-  names:
-    0: person
-    1: bicycle
-    2: car
-    ...
-    77: teddy bear
-    78: hair drier
-    79: toothbrush
-
-  Args:
-    names: A dictionary of class names to IDs.
-    paths: A set of strings for the paths.
-
-  """
-
-  with open(os.path.join(root_path, filename), "w") as f:
-    yaml.dump({
-      "names": coco_classes,
-      "nc": len(coco_classes),
-      "path": root_path,
-      "train": train_path,
-      "val": val_path,
-      "test": test_path
-    }, f, default_flow_style=False)
-
-def win2bash(powershell_filepath):
-  """Converts a PowerShell filepath to a Windows Bash filepath.
-  Args:
-    powershell_filepath: The PowerShell filepath to convert.
-  Returns:
-    The Windows Bash filepath.
-  """
-  # Replace `\\` with `/`.
-  powershell_filepath = powershell_filepath.replace("\\", "/")
-  # Convert `C:` to `/mnt/c`.
-  if powershell_filepath.startswith("C:"):
-    powershell_filepath = "/mnt/c" + powershell_filepath[2:]
-
-  return powershell_filepath
 
 '''Function to add arguments'''
 def init_parser():
@@ -134,7 +29,8 @@ def init_parser():
     parser.add_argument('--dst', type=str, default=dest_path_d, help='Path to save processed data')
     parser.add_argument('--prev', type=bool, default=False, help='Preview conversion')
     parser.add_argument('--owrt', type=bool, default=False, help='Overwrite Dataset')
-    parser.add_argument('--limit', type=int, default=1000000, help='Limit of images processed')
+    parser.add_argument('--limit', type=int, default=dataset_limit_d, help='Limit of images processed')
+    parser.add_argument('--plimit', type=int, default=partition_limit_d, help='Limit of images per partition')
     return parser
 
 def main_func(args):
@@ -144,59 +40,61 @@ def main_func(args):
     overwrite_dataset = args.owrt
     dataset_limit = args.limit
     preview = args.prev
+    partition_limit = args.plimit
+    partition_number = 1
 
-    # Create File Structure
-    train_path = os.path.join(dest_path, "train")
-    val_path = os.path.join(dest_path, "val")
-    test_path = os.path.join(dest_path, "test")
-    train_vid_path = os.path.join(dest_path, "vids")
-    train_im_path = os.path.join(dest_path, "train", "images")
-    train_label_path = os.path.join(dest_path, "train", "labels")
-    val_im_path = os.path.join(dest_path, "val", "images")
-    val_label_path = os.path.join(dest_path, "val", "labels")
-    #val_label_path = os.path.join(dest_path, "val", "vids")
-    mkdir_safe(dest_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(train_path, overwrite_contents=overwrite_dataset)
-    #mkdir_safe(train_vid_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(train_label_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(train_im_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(val_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(val_label_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(val_im_path, overwrite_contents=overwrite_dataset)
-    #mkdir_safe(val_vid_path, overwrite_contents=overwrite_dataset)
-    mkdir_safe(test_path, overwrite_contents=overwrite_dataset)
+    # Create Initial Partition
+    create_parition(os.path.join(dest_path, "par"+str(partition_number)), overwrite_dataset=True)
 
-    # Create .yaml for ultralytics API
-    write_yaml_file(filename="data.yaml",
-                    root_path=dest_path,
-                    train_path=train_path,
-                    val_path=val_path,
-                    test_path=test_path,
-                    class_dict=class_dict)
-    write_yaml_file(filename="data_bash.yaml",
-                    root_path=dest_path,
-                    train_path=win2bash(train_path),
-                    val_path=win2bash(train_path),
-                    test_path=win2bash(test_path),
-                    class_dict=class_dict)
+    # Calculate number of training and validation samples
+    label_train_path = os.path.join(source_path, "labels", "box_track_20", "train")
+    num_train_samples = len(clean_list(os.listdir(label_train_path), '.json'))
+    label_val_path = os.path.join(source_path, "labels", "box_track_20", "val")
+    num_val_samples = len(clean_list(os.listdir(label_val_path), '.json'))
+    print("Processing: "+str(num_train_samples)+" training samples + "+str(num_val_samples)+" validation samples")
+    partitions_needed = ceil(num_train_samples/partition_limit)
+    print(f"Partitions Estimate: {partitions_needed} (size: {partition_limit})")
+    print(f"Partition Limit: {ceil(dataset_limit/partition_limit)} with data limit {dataset_limit}")
 
-    proccessed = 0
+    processed = 0
+    partition_processed = 0
+    # Main Loop for Train/Val Split
     for split in ["train", "val"]:
         # Find the image and label paths for the split
+        partition_number = 1
         label_path = os.path.join(source_path, "labels", "box_track_20", split)
         vid_path = os.path.join(source_path, "images", "track", split)
-        label_path_dest = os.path.join(dest_path, split, "labels")
-        im_path_dest = os.path.join(dest_path, split, "images")
-        #vid_path_dest = os.path.join(dest_path, split, "vids")
+        par_path = os.path.join(dest_path, "par"+str(partition_number))
+        label_path_dest = os.path.join(par_path,  split, "labels")
+        im_path_dest = os.path.join(par_path, split, "images")
 
-        # Get Label IDs
+        # Get Label IDs for split
         label_ids = clean_list(os.listdir(label_path), '.json')
 
         # Get existing image labels from the labels folder
         existing_labels = clean_list(os.listdir(label_path_dest), ".txt")
         skipping = True
 
+        # Split Conditionals
+        if split == "train":
+            print("Processing Training Data...")
+            val_target = 0
+        elif split == "val":
+            print("Processing Validation Data...")
+            # Get initial validation target
+            val_target = read_validation_target(par_path)
+
+        # Main Loop for writing video frames to dataset
+        partition_processed = 0
         for id in label_ids:
+            # Update Display of Percentage
+            if split=="train":
+                percent = (partition_processed/min(partition_limit, dataset_limit))*100
+            elif split=="val":
+                percent = (partition_processed/val_target)*100
+            update_prog(partition_number, percent)
+
+
             # Pull Json for the given video
             with open(path.join(label_path, id+".json")) as file:
                 label_data = json.load(file)
@@ -204,11 +102,37 @@ def main_func(args):
             # Define Filepath For Frames
             im_path = path.join(vid_path, id)
 
+            # Determine if new video exceeds partition limit
+            if len(label_data)+partition_processed > partition_limit:
+                # If no files have been written, move on to next video
+                if partition_processed == 0:
+                    print("Video is too large for current partition size. Skipping...")
+                    continue
+                # If we've just run out of room in the partition, move onto the next one
+                else:
+                    #  If training write partition information to json
+                    if split == "train":
+                        val_target = floor((partition_processed / num_train_samples) * num_val_samples)
+                        write_partition_info(par_path, partition_processed, val_target)
+                        update_prog(partition_number, 100)
+                        print("\nTraining images for partition " + str(partition_number) + " complete: " + \
+                              str(partition_processed) + " training images, " + str(val_target) + " validation target")
+                    else:
+                        print("\nValidation images for partition " + str(partition_number) + " complete: " + \
+                              + str(partition_processed) + " validation images")
+                    # Move to next partition number
+                    partition_number = partition_number + 1
+                    # Reset Processed Counter
+                    partition_processed = 0
+                    # Update partition path and create a new partition
+                    par_path = os.path.join(dest_path, "par" + str(partition_number))
+                    label_path_dest = os.path.join(par_path, split, "labels")
+                    im_path_dest = os.path.join(par_path, split, "images")
+                    create_parition(par_path, overwrite_dataset=True)
+
             # For Each Frame
             for frame_data in label_data:
                 if frame_data["name"][:-4] not in existing_labels:
-                    if skipping is True:
-                        print("Beginning to process real frames...")
                     skipping = False
                     # Get Image
                     im = cv.imread(path.join(im_path, frame_data["name"]))
@@ -243,14 +167,12 @@ def main_func(args):
 
                         # Normalize values by im dimensions and save to file, YOLO format
                         with open(path.join(label_path_dest, frame_data["name"][:-4]+".txt"), 'a') as file:
-                            # file.write(f"{str(SHARK_LABEL)} {str(x1 / im_w)} {str(y1 / im_h)} {str(w / im_w)} {str(h / im_h)}")
                             file.write(f"{str(cat_id)} {str(cx / im_w)} {str(cy / im_h)} {str(w / im_w)} {str(h / im_h)}\n")
 
                     # Copy matching image to images folder
-                    #shutil.copy(path.join(im_path, frame_data["name"]), path.join(train_vid_path, id, frame_data["name"]))
                     shutil.copy(path.join(im_path, frame_data["name"]), path.join(im_path_dest, frame_data["name"]))
 
-                    if proccessed >= dataset_limit:
+                    if processed >= dataset_limit:
                         break
 
                     if preview:
@@ -281,11 +203,38 @@ def main_func(args):
                     skipping = True
 
                 # Increment Frames Considered
-                proccessed = proccessed + 1
-                if proccessed >= dataset_limit:
+                processed = processed + 1
+                partition_processed = partition_processed + 1
+                if (processed >= dataset_limit and split=="train") or (partition_processed >= val_target and split=="val"):
                     break
-            if proccessed >= dataset_limit:
+
+            # Break out of videos if dataset limit is reached
+            if (processed >= dataset_limit and split=="train"):
+                val_target = floor((partition_processed / num_train_samples) * num_val_samples)
+                write_partition_info(par_path, partition_processed, val_target)
+                update_prog(partition_number, 100)
+                print("\nTraining images for partition " + str(partition_number) + " complete: " +
+                      str(partition_processed) + " training images, " + str(val_target) + " validation target")
                 break
+            elif (partition_processed >= val_target and split=="val"):
+                update_prog(partition_number, 100)
+                print("\nValidation images for partition " + str(partition_number) + " complete: "
+                      + str(partition_processed) + " validation images")
+                # Move to next partition number
+                partition_number = partition_number + 1
+                # Reset Processed Counter
+                partition_processed = 0
+                # Update partition path and create a new partition
+                par_path = os.path.join(dest_path, "par" + str(partition_number))
+                label_path_dest = os.path.join(par_path, split, "labels")
+                im_path_dest = os.path.join(par_path, split, "images")
+                if os.path.exists(par_path):
+                    val_target = read_validation_target(par_path)
+                else:
+                    break
+
+
+        processed = 0
 
     print("Done!")
 
