@@ -19,42 +19,35 @@ parse_yaml() {
 }
 
 eval $(parse_yaml config.yaml)
-'
+
+
+# Update yaml fields because the way that ultralytics proccesses this is INSANE
+update_yaml_field() {
+  local yaml_file="$1"
+  local field_name="$2"
+  local new_contents="$3"
+
+  # Check if the YAML file exists
+  if [ ! -f "$yaml_file" ]; then
+    echo "YAML file '$yaml_file' not found."
+    return 1
+  fi
+
+  # Update the field in the YAML file using sed
+  sed -i "s|\($field_name: \).*|\1$new_contents|" "$yaml_file"
+
+  echo "Field '$field_name' in '$yaml_file' updated to '$new_contents'."
+}
+
+update_yaml_field "${data_dir}/data.yaml" "train" "${data_dir}/train"
+update_yaml_field "${data_dir}/data.yaml" "val" "${data_dir}/val"
+update_yaml_field "${data_dir}/data.yaml" "test" "${data_dir}/test"
+
+echo "*************************GPU INFO********************************"
+nvidia-smi
+
+touch ./TRAINING_IN_PROGRESS.txt
 cd ${data_dir}
-data_path=$(pwd)
-# Create a Copy of data.yaml for evaluating the test
-newfile="data_train.yaml"
-if [ -e $newfile ]; then
-    echo "Training Data Found."
-fi
-field="train"
-new_value="${data_path}/train/images"
-file_contents=$(cat data.yaml)
-# Replace the old value with the new value
-new_contents="$(echo "$file_contents" | sed -e "s@^${field}:.*@${field}: ${new_value}@")"
-echo "$new_contents" > $newfile
-
-field="val"
-new_value="${data_path}/valid/images"
-file_contents=$(cat ${newfile})
-# Replace the old value with the new value
-new_contents="$(echo "$file_contents" | sed -e "s@^${field}:.*@${field}: ${new_value}@")"
-echo "$new_contents" > $newfile
-
-field="test"
-new_value="${data_path}/test/images"
-file_contents=$(cat ${newfile})
-# Replace the old value with the new value
-new_contents="$(echo "$file_contents" | sed -e "s@^${field}:.*@${field}: ${new_value}@")"
-
-# Write the new contents back to the file
-echo "$new_contents" > $newfile
-
-# Run the Training Script
-
-cd ..
-'
-touch /mpac/TRAINING_IN_PROGRESS.txt
 yolo task=detect \
   mode=train \
   model=$model \
@@ -78,9 +71,8 @@ yolo task=detect \
   box=$box \
   cls=$cls \
   dfl=$dfl \
-  fl_gamma=$fl_gamma \
   label_smoothing=$label_smoothing \
   nbs=$nbs \
   2>&1 
-
-  rm /mpac/TRAINING_IN_PROGRESS.txt
+cd -
+rm ./TRAINING_IN_PROGRESS.txt

@@ -4,13 +4,13 @@ roboflow_url: "https://app.roboflow.com/ds/WXhb7XSaNb?key=B7P99J5E8P"
 # D4MSLargeSet: https://app.roboflow.com/ds/ZT83hNUbvA?key=qC45ah4HO7
 # Custom Data: https://app.roboflow.com/ds/DunlOIyiR4?key=uPXGckqBNa
 # Custom + Synthetic: https://app.roboflow.com/ds/rS8HDRXsWw?key=4KOBv8fUbF
-# python_packages(lists not supported): ['ultralytics', 'roboflow', 'utils']
-python_dir: "/mpac/pylib/"
+# python_packages(lists not supported): ['ultralytics', 'roboflow', 'uti
+python_dir: "/mpac/dbax_pylib/"
 
 ## Training Configuration for YOLOv8
-project_train: "YSP"
+project_train: "YOLOBDD"
 experiment_train: "test_run"
-data_dir: "./datasets/"
+data_dir: "/workspace/dataset/yolo_mots"
 model: "yolov8n.pt"
 batch: 32
 epochs: 1
