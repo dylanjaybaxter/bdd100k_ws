@@ -15,4 +15,4 @@ WORKDIR /workspace
 COPY . /workspace
 
 # When started run the training
-CMD sh run.sh
+CMD sh run.sh config.yaml

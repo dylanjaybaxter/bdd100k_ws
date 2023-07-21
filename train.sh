@@ -1,5 +1,13 @@
 # !/bin/bash
 
+# Assign config path
+config_path="$1"
+# Check if the folder path is provided
+if [ -z "$config_path" ]; then
+  echo "Usage: $0 <config_path>"
+  exit 1
+fi
+
 # Argument Setup: https://stackoverflow.com/questions/5014632/how-can-i-parse-a-yaml-file-from-a-linux-shell-script
 parse_yaml() {
    local prefix=$2
@@ -18,7 +26,7 @@ parse_yaml() {
    }'
 }
 
-eval $(parse_yaml $1)
+eval $(parse_yaml ${config_path})
 
 # Update yaml fields because the way that ultralytics proccesses this is INSANE
 update_yaml_field() {
