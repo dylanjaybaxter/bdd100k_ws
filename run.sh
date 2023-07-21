@@ -7,6 +7,8 @@ config_path="$1"
 if [ -z "$config_path" ]; then
   echo "Usage: $0 <config_path>"
   exit 1
+else
+  echo "Using config ${config_path}"
 fi
 
 #!/bin/bash
@@ -67,8 +69,8 @@ update_yaml_field() {
 # Create a working copy of the config file
 cp $config_path config_temp.yaml
 
-
 initial=true
+echo "Running training for ${global_epochs} GLOBAL EPOCHS"
 for (( z = 1; z <= ${global_epochs}; z++ )); do
     for (( i = 1; i <= ${num_partitions}; i++ )); do
     echo "************************Training Partition ${i}************************"
