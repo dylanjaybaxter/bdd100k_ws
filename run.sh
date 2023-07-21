@@ -90,12 +90,6 @@ while [ "$z" -le "$global_epochs" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}"
         update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}"
-        if [ $((initial)) -eq 0 ]; then
-            # Nothing
-        else
-            echo "Using config model..."
-            initial=0 
-        fi
         sh train.sh config_temp.yaml
         update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}_par${i}/weights/last.pt"
         i=$((i + 1))
