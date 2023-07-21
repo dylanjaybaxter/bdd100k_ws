@@ -77,7 +77,7 @@ update_yaml_field() {
 cp $config_path config_temp.yaml
 rm -r /workspace/${project_train}/
 
-initial=true
+initial=1
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
 # Loop from 1 to global_epochs
 z=1
@@ -87,11 +87,11 @@ while [ "$z" -le "$global_epochs" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}/"
         update_yaml_field "config_temp.yaml" "experiment" "${experiment_train}_par${i}"
-        if [[ "$initial" == "false" ]]; then
+        if [ $((initial)) -eq 0 ]; then
             update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}/weights/last.pt"
         else
             echo "Using config model..."
-            initial=false 
+            initial=0 
         fi
         sh train.sh config_temp.yaml
         i=$((i + 1))
