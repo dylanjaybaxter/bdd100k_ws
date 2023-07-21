@@ -72,7 +72,7 @@ cp $config_path config_temp.yaml
 initial=true
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
 for (( z = 1; z <= $((global_epochs)); z++ )); do
-    for (( i = 1; i <= ${num_partitions}; i++ )); do
+    for (( i = 1; i <= $((num_partitions)); i++ )); do
     echo "************************Training Partition ${i}************************"
     update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}/data.yaml"
     update_yaml_field "config_temp.yaml" "experiment" "${experiment}_par${i}"
