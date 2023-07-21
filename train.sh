@@ -79,6 +79,7 @@ yolo task=detect \
   dfl=$dfl \
   label_smoothing=$label_smoothing \
   nbs=$nbs \
+  verbose \
   2>&1 
 cd -
 rm ./TRAINING_IN_PROGRESS.txt
