@@ -75,6 +75,7 @@ update_yaml_field() {
 
 # Create a working copy of the config file
 cp $config_path config_temp.yaml
+rm -r /workspace/${project_train}/
 
 initial=true
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
