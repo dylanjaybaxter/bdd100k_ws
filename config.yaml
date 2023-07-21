@@ -20,7 +20,7 @@ patience: 25
 im_size: 640
 device: 0
 workers: 8
-overwrite: False
+overwrite: True
 lr0: 0.01
 lrf: 0.01
 momentum: 0.937
