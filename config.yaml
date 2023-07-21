@@ -18,7 +18,7 @@ batch: 8
 epochs: 1
 patience: 25
 im_size: 640
-device: 0
+device: '0,1'
 workers: 2
 overwrite: False
 lr0: 0.01
