@@ -75,6 +75,9 @@ update_yaml_field() {
 
 # Create a working copy of the config file
 cp $config_path config_temp.yaml
+pwd
+ls /workspace/
+ls
 rm -r /workspace/${project_train}/
 
 initial=1
