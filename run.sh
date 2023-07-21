@@ -89,7 +89,7 @@ while [ "$z" -le "$global_epochs" ]; do
     while [ "$i" -le "$num_partitions" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}"
-        update_yaml_field "config_temp.yaml" "experiment" "${experiment_train}_par${i}"
+        update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}"
         if [ $((initial)) -eq 0 ]; then
             update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}_par${i-1}/weights/last.pt"
         else
