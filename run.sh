@@ -17,11 +17,18 @@ nvidia-smi
 echo "************************Beginning Training************************"
 # Find the number or partitions in the dataset
 # Loop through the subdirectories in the provided path
-for subdir in "./dataset/yolo_mots/"; do
-# Check if the subdirectory matches the naming convention [par1, par2, par3, ...]
-if [ -d "${subdir}" ] && [[ "${subdir}" =~ ^"$1"/par[0-9]+$ ]]; then
-    num_partitions=$((num_partitions+1))
-fi
+num_partitions=0  # Initialize num_partitions to zero
+i=1  # Start with i=1
+while true; do
+    subdir="/workspace/dataset/yolo_mots/par${i}"
+    # Check if the subdirectory exists
+    if [ -d "${subdir}" ]; then
+        num_partitions=$((num_partitions + 1))  # Increment num_partitions
+        i=$((i + 1))  # Move to the next number
+    else
+        # If the subdirectory doesn't exist, break out of the loop
+        break
+    fi
 done
 
 # Output the result
