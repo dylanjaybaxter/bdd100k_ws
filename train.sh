@@ -18,8 +18,7 @@ parse_yaml() {
    }'
 }
 
-eval $(parse_yaml config.yaml)
-
+eval $(parse_yaml $1)
 
 # Update yaml fields because the way that ultralytics proccesses this is INSANE
 update_yaml_field() {
@@ -43,8 +42,7 @@ update_yaml_field "${data_dir}/data.yaml" "train" "${data_dir}/train"
 update_yaml_field "${data_dir}/data.yaml" "val" "${data_dir}/val"
 update_yaml_field "${data_dir}/data.yaml" "test" "${data_dir}/test"
 
-echo "*************************GPU INFO********************************"
-nvidia-smi
+
 
 touch ./TRAINING_IN_PROGRESS.txt
 cd ${data_dir}

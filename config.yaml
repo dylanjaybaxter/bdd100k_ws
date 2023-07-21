@@ -6,6 +6,8 @@ roboflow_url: "https://app.roboflow.com/ds/WXhb7XSaNb?key=B7P99J5E8P"
 # Custom + Synthetic: https://app.roboflow.com/ds/rS8HDRXsWw?key=4KOBv8fUbF
 # python_packages(lists not supported): ['ultralytics', 'roboflow', 'uti
 python_dir: "/mpac/dbax_pylib/"
+global_epochs: 1
+
 
 ## Training Configuration for YOLOv8
 project_train: "YOLOBDD"
@@ -16,7 +18,7 @@ batch: 32
 epochs: 1
 patience: 25
 im_size: 640
-device: 0
+device: '0,1'
 workers: 8
 overwrite: False
 lr0: 0.01
