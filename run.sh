@@ -90,10 +90,13 @@ while [ "$z" -le "$global_epochs" ]; do
             echo "Using config model..."
             initial=false
         else
-            update_yaml_field "config_temp.yaml" "model" "./${project_train}/${experiment_train}/weights/last.pt"
+            update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}/weights/last.pt"
         fi
         sh train.sh config_temp.yaml
         i=$((i + 1))
     done
     z=$((z + 1))
 done
+
+# Copy over results when done
+mv /workspace/${project_train}/ /workspace/dataset/
