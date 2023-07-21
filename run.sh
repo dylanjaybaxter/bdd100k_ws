@@ -75,10 +75,6 @@ update_yaml_field() {
 
 # Create a working copy of the config file
 cp $config_path config_temp.yaml
-pwd
-ls /workspace/
-ls
-rm -r /workspace/${project_train}/
 
 initial=1
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
@@ -90,6 +86,7 @@ while [ "$z" -le "$global_epochs" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}"
         update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}"
+        ls
         sh train.sh config_temp.yaml
         update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}_par${i}/weights/last.pt"
         i=$((i + 1))
