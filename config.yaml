@@ -14,12 +14,12 @@ project_train: "YOLOBDD"
 experiment_train: "test_run"
 data_dir: "/workspace/dataset/yolo_mots"
 model: "yolov8n.pt"
-batch: 8
+batch: -1
 epochs: 1
 patience: 25
 im_size: 640
 device: 0
-workers: 4
+workers: 8
 overwrite: False
 lr0: 0.01
 lrf: 0.01
