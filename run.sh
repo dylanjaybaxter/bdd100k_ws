@@ -44,7 +44,7 @@ parse_yaml() {
    }'
 }
 
-eval $(parse_yaml config.yaml)
+eval $(parse_yaml ${config_path})
 
 # Establish yaml modification
 update_yaml_field() {
@@ -69,7 +69,7 @@ cp $config_path config_temp.yaml
 
 
 initial=true
-for (( i = 1; i <= ${global_epochs}; i++ )); do
+for (( z = 1; z <= ${global_epochs}; z++ )); do
     for (( i = 1; i <= ${num_partitions}; i++ )); do
     echo "************************Training Partition ${i}************************"
     update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}/data.yaml"
