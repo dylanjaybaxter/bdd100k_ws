@@ -17,10 +17,10 @@ nvidia-smi
 echo "************************Beginning Training************************"
 # Find the number or partitions in the dataset
 # Loop through the subdirectories in the provided path
-for subdir in "$1"/par*; do
+for subdir in "./dataset/yolo_mots"/par*; do
 # Check if the subdirectory matches the naming convention [par1, par2, par3, ...]
 if [ -d "${subdir}" ] && [[ "${subdir}" =~ ^"$1"/par[0-9]+$ ]]; then
-    num_partitions=$((num_partitions + 1))
+    num_partitions=$((num_partitions+1))
 fi
 done
 
