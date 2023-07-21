@@ -1,3 +1,4 @@
+#!/bin/bash
 # Bash Script For Setup And Exec of Training
 # Check for correct input
 
@@ -11,7 +12,6 @@ else
   echo "Using config ${config_path}"
 fi
 
-#!/bin/bash
 echo "***************************GPU INFO********************************"
 nvidia-smi
 echo "************************Beginning Training************************"
