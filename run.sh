@@ -78,17 +78,22 @@ cp $config_path config_temp.yaml
 
 initial=true
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
-for (( z = 1; z <= $((global_epochs)); z++ )); do
-    for (( i = 1; i <= $((num_partitions)); i++ )); do
-    echo "************************Training Partition ${i}************************"
-    update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}/data.yaml"
-    update_yaml_field "config_temp.yaml" "experiment" "${experiment}_par${i}"
-    if [ "$initial" -eq 0 ]; then
-        echo "Using config model..."
-        initial=false
-    else
-        update_yaml_field "config_temp.yaml" "model" "./${project_train}/${experiment_train}/weights/last.pt"
-    fi
-    sh train.sh config_temp.yaml
+# Loop from 1 to global_epochs
+z=1
+while [ "$z" -le "$global_epochs" ]; do
+    i=1
+    while [ "$i" -le "$num_partitions" ]; do
+        echo "************************Training Partition ${i}************************"
+        update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}/data.yaml"
+        update_yaml_field "config_temp.yaml" "experiment" "${experiment}_par${i}"
+        if [ "$initial" -eq 0 ]; then
+            echo "Using config model..."
+            initial=false
+        else
+            update_yaml_field "config_temp.yaml" "model" "./${project_train}/${experiment_train}/weights/last.pt"
+        fi
+        sh train.sh config_temp.yaml
+        i=$((i + 1))
     done
+    z=$((z + 1))
 done
