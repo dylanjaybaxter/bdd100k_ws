@@ -25,7 +25,7 @@ lr0: 0.01
 lrf: 0.01
 momentum: 0.937
 weight_decay: 0.005
-warmup: 3.0
+warmup: 0.1
 warmup_momentum: 0.8
 warmup_bias_lr: 0.1
 box: 7.5
