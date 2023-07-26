@@ -106,6 +106,7 @@ while [ "$z" -le "$global_epochs" ]; do
             # 1st iteration has no checkpoint
             if [ "$initial" -eq 1 ]; then
                 initial=0
+                sh train.sh config_temp.yaml
                 break;
             fi
             # If checkpoint found, proceed with training
