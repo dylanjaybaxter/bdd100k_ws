@@ -122,7 +122,7 @@ while [ "$z" -le "$global_epochs" ]; do
             elapsed_time=$((elapsed_time + check_interval))
         done
         pwd
-        ls
+        ls /
 
         # Timeout Message
         if [ $elapsed_time -ge $max_wait_time ]; then
