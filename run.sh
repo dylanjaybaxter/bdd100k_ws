@@ -121,9 +121,6 @@ while [ "$z" -le "$global_epochs" ]; do
             sleep $check_interval
             elapsed_time=$((elapsed_time + check_interval))
         done
-        pwd
-        ls /
-        find / -type d -name "test_run_par1"
 
         # Timeout Message
         if [ $elapsed_time -ge $max_wait_time ]; then
