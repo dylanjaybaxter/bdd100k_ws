@@ -102,6 +102,7 @@ while [ "$z" -le "$global_epochs" ]; do
 
         # Start waiting for checkpoint file to be written
         elapsed_time=0
+        echo "Waiting for checkpoint file to be written in ${chkpt_path}"
         while [ $elapsed_time -lt $max_wait_time ]; do
             # 1st iteration has no checkpoint
             if [ "$initial" -eq 1 ]; then
@@ -116,6 +117,7 @@ while [ "$z" -le "$global_epochs" ]; do
                 break
             fi
             # Wait for an interval and increment elapsed time
+            echo -n "."
             sleep $check_interval
             elapsed_time=$((elapsed_time + check_interval))
         done
