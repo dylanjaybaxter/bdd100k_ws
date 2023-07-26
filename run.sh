@@ -123,7 +123,7 @@ while [ "$z" -le "$global_epochs" ]; do
         done
         pwd
         ls /
-        find / -type d -name "YOLOBDD"
+        find / -type d -name "test_run_par1"
 
         # Timeout Message
         if [ $elapsed_time -ge $max_wait_time ]; then
@@ -131,7 +131,7 @@ while [ "$z" -le "$global_epochs" ]; do
         fi
         
         # Update checkpoint path in config
-        chkpt_path="/workspace/${project_train}/${experiment_train}_par${i}/weights/last.pt"
+        chkpt_path="/workspace/dataset/${project_train}/${experiment_train}_par${i}/weights/last.pt"
         update_yaml_field "config_temp.yaml" "model" "${chkpt_path}"
         i=$((i + 1))
     done
