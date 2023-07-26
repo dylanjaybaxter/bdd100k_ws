@@ -76,20 +76,57 @@ update_yaml_field() {
 # Create a working copy of the config file
 cp $config_path config_temp.yaml
 
+# Establish function for checking if results file has been written
+check_file() {
+if [ -s "$1" ]; then
+    return 0
+else
+    return 1
+fi
+}
+
 initial=1
+chkpt_path=""
+max_wait_time=30
+check_interval=1
 echo "Running training for ${global_epochs} GLOBAL EPOCHS"
 # Loop from 1 to global_epochs
 z=1
 while [ "$z" -le "$global_epochs" ]; do
+    # Loop through partitions
     i=1
     while [ "$i" -le "$num_partitions" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}"
         update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}"
-        wait
-        ls
-        sh train.sh config_temp.yaml
-        update_yaml_field "config_temp.yaml" "model" "/workspace/${project_train}/${experiment_train}_par${i}/weights/last.pt"
+
+        # Start waiting for checkpoint file to be written
+        elapsed_time=0
+        while [ $elapsed_time -lt $max_wait_time ]; do
+            # 1st iteration has no checkpoint
+            if [ "$initial" -eq 1 ]; then
+                initial=0
+                break;
+            fi
+            # If checkpoint found, proceed with training
+            if check_file "$chkpt_path"; then
+                echo "Checkpoint found. Proceeding with training..."
+                sh train.sh config_temp.yaml
+                break
+            fi
+            # Wait for an interval and increment elapsed time
+            sleep $check_interval
+            elapsed_time=$((elapsed_time + check_interval))
+        done
+
+        # Timeout Message
+        if [ $elapsed_time -ge $max_wait_time ]; then
+            echo "Timed out. File not found within the specified time."
+        fi
+        
+        # Update checkpoint path in config
+        chkpt_path="/workspace/${project_train}/${experiment_train}_par${i}/weights/last.pt"
+        update_yaml_field "config_temp.yaml" "model" "${chkpt_path}"
         i=$((i + 1))
     done
     z=$((z + 1))
