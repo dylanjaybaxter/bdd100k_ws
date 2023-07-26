@@ -98,7 +98,7 @@ while [ "$z" -le "$global_epochs" ]; do
     while [ "$i" -le "$num_partitions" ]; do
         echo "************************Training Partition ${i}************************"
         update_yaml_field "config_temp.yaml" "data_dir" "${data_dir}/par${i}"
-        update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}"
+        update_yaml_field "config_temp.yaml" "experiment_train" "${experiment_train}_par${i}e${z}"
 
         # Start waiting for checkpoint file to be written
         elapsed_time=0
@@ -131,7 +131,7 @@ while [ "$z" -le "$global_epochs" ]; do
         fi
         
         # Update checkpoint path in config
-        chkpt_path="/workspace/dataset/${project_train}/${experiment_train}_par${i}/weights/last.pt"
+        chkpt_path="/workspace/dataset/yolo_mots/par${i}/${project_train}/${experiment_train}_par${i}e${z}/weights/last.pt"
         update_yaml_field "config_temp.yaml" "model" "${chkpt_path}"
         i=$((i + 1))
     done
