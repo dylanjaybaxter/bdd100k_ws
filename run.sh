@@ -135,5 +135,20 @@ while [ "$z" -le "$global_epochs" ]; do
     z=$((z + 1))
 done
 
+# Print Training Complete Message
+echo "************************************************************"
+echo "******************* Training Complete!!! *******************"
+echo "************************************************************"
+echo "*******************    ^     *******************"
+echo "*******************   | |    *******************"
+echo "*******************   | ---| *******************"
+echo "******************* --| ---| *******************"
+echo "******************* _______| *******************"
+echo "************************************************************"
+
+
+echo " Final validation not implemented..."
+
 # Copy over results when done
-mv /workspace/${project_train}/ /workspace/dataset/
+mkdir /workspace/dataset/results/${experiment_train}
+mv ${chkpt_path} /workspace/dataset/results/${experiment_train}
