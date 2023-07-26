@@ -123,6 +123,7 @@ while [ "$z" -le "$global_epochs" ]; do
         done
         pwd
         ls /
+        find / -type d -name "YOLOBDD"
 
         # Timeout Message
         if [ $elapsed_time -ge $max_wait_time ]; then
