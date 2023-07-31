@@ -53,6 +53,7 @@ def main_func(args):
     num_train_vids = len(clean_list(os.listdir(label_train_path), '.json'))
     num_train_samples = 0
     for root, dirs, files in os.walk(label_train_path):
+        print(f"Counting {len(files)} files in {dirs}")
         num_train_samples += len(files)
     label_val_path = os.path.join(source_path, "labels", "box_track_20", "val")
     num_val_samples = len(clean_list(os.listdir(label_val_path), '.json'))
