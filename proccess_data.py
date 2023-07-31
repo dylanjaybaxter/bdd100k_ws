@@ -50,9 +50,10 @@ def main_func(args):
 
     # Calculate number of training and validation samples
     label_train_path = os.path.join(source_path, "labels", "box_track_20", "train")
+    image_train_path = os.path.join(source_path, "images", "track", "train")
     num_train_vids = len(clean_list(os.listdir(label_train_path), '.json'))
     num_train_samples = 0
-    for root, dirs, files in os.walk(label_train_path):
+    for root, dirs, files in os.walk(image_train_path):
         print(f"Counting {len(files)} files in {dirs}")
         num_train_samples += len(files)
     label_val_path = os.path.join(source_path, "labels", "box_track_20", "val")
