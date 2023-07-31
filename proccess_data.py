@@ -44,7 +44,8 @@ def main_func(args):
     partition_number = 1
 
     # Create Initial Partition
-    create_parition(os.path.join(dest_path, "par"+str(partition_number)), overwrite_dataset=True)
+    print("Writing Initial Partition: "+ os.path.join(dest_path, "par"+str(partition_number))+ "...")
+    create_parition(os.path.join(dest_path, "par"+str(partition_number)), overwrite_dataset=overwrite_dataset)
 
     # Calculate number of training and validation samples
     label_train_path = os.path.join(source_path, "labels", "box_track_20", "train")
