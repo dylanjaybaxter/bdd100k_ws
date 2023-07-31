@@ -45,6 +45,7 @@ def main_func(args):
 
     # Create Initial Partition
     print("Writing Initial Partition: "+ os.path.join(dest_path, "par"+str(partition_number))+ "...")
+    print("Overwriting: "+ str(overwrite_dataset))
     create_parition(os.path.join(dest_path, "par"+str(partition_number)), overwrite_dataset=overwrite_dataset)
 
     # Calculate number of training and validation samples
