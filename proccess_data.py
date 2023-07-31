@@ -55,8 +55,8 @@ def main_func(args):
     num_val_samples = len(clean_list(os.listdir(label_val_path), '.json'))
     partitions_needed = ceil(num_train_samples/partition_limit)
     # Update Dataset Limit to the number of samples
-    dataset_limit = min(dataset_limit, num_train_samples)
-    partition_limit = min(partition_limit, num_train_samples)
+    dataset_limit = min(dataset_limit, num_train_samples*60)
+    partition_limit = min(partition_limit, num_train_samples*60)
     print("Processing: " + str(num_train_samples) + " training samples + " + str(num_val_samples) + " validation samples")
     print(f"Partitions Estimate: {partitions_needed} (size: {partition_limit})")
     print(f"Partition Limit: {ceil(dataset_limit/partition_limit)} with data limit {dataset_limit}")
