@@ -50,13 +50,16 @@ def main_func(args):
 
     # Calculate number of training and validation samples
     label_train_path = os.path.join(source_path, "labels", "box_track_20", "train")
-    num_train_samples = len(clean_list(os.listdir(label_train_path), '.json'))
+    num_train_vids = len(clean_list(os.listdir(label_train_path), '.json'))
+    num_train_samples = 0
+    for root, dirs, files in os.walk(label_train_path):
+        num_train_samples += len(files)
     label_val_path = os.path.join(source_path, "labels", "box_track_20", "val")
     num_val_samples = len(clean_list(os.listdir(label_val_path), '.json'))
     partitions_needed = ceil(num_train_samples/partition_limit)
     # Update Dataset Limit to the number of samples
-    dataset_limit = min(dataset_limit, num_train_samples*60)
-    partition_limit = min(partition_limit, num_train_samples*60)
+    dataset_limit = min(dataset_limit, num_train_samples)
+    partition_limit = min(partition_limit, num_train_samples)
     print("Processing: " + str(num_train_samples) + " training samples + " + str(num_val_samples) + " validation samples")
     print(f"Partitions Estimate: {partitions_needed} (size: {partition_limit})")
     print(f"Partition Limit: {ceil(dataset_limit/partition_limit)} with data limit {dataset_limit}")
