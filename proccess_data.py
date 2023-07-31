@@ -56,6 +56,10 @@ def main_func(args):
     print(f"Partitions Estimate: {partitions_needed} (size: {partition_limit})")
     print(f"Partition Limit: {ceil(dataset_limit/partition_limit)} with data limit {dataset_limit}")
 
+    # Update Dataset Limit to the number of samples
+    dataset_limit = min(dataset_limit, num_train_samples)
+    partition_limit = min(partition_limit, num_train_samples)
+
     processed = 0
     partition_processed = 0
     # Main Loop for Train/Val Split
