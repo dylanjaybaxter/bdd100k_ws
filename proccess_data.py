@@ -54,10 +54,13 @@ def main_func(args):
     num_train_vids = len(clean_list(os.listdir(label_train_path), '.json'))
     num_train_samples = 0
     for root, dirs, files in os.walk(image_train_path):
-        print(f"Counting {len(files)} files in {dirs}")
         num_train_samples += len(files)
     label_val_path = os.path.join(source_path, "labels", "box_track_20", "val")
-    num_val_samples = len(clean_list(os.listdir(label_val_path), '.json'))
+    image_val_path = os.path.join(source_path, "images", "track", "val")
+    num_val_vids = len(clean_list(os.listdir(label_val_path), '.json'))
+    num_val_samples = 0
+    for root, dirs, files in os.walk(image_val_path):
+        num_val_samples += len(files)
     partitions_needed = ceil(num_train_samples/partition_limit)
     # Update Dataset Limit to the number of samples
     dataset_limit = min(dataset_limit, num_train_samples)
