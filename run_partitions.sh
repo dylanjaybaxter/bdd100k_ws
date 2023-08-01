@@ -147,6 +147,8 @@ echo "************************ --| ---| **************************"
 echo "************************ _______| **************************"
 echo "************************************************************"
 
+# Change Permissions of Written Files
+chmod -R 777 "/workspace/dataset/"
 
 echo " Final validation not implemented..."
 

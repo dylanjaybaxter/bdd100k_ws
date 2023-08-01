@@ -90,9 +90,12 @@ echo "************************ --| ---| **************************"
 echo "************************ _______| **************************"
 echo "************************************************************"
 
+# Change Permissions of Written Files
+chmod -R 777 /workspace/dataset/
 
 echo " Final validation not implemented..."
 
 # Copy over results when done
 mkdir /workspace/dataset/results/${experiment_train}
 mv ${chkpt_path} /workspace/dataset/results/${experiment_train}
+
