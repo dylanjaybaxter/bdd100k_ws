@@ -16,4 +16,4 @@ WORKDIR /workspace
 COPY . /workspace
 
 # When started run the training
-CMD sh run.sh config.yaml
+CMD sh run_standard.sh config.yaml

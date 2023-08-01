@@ -46,12 +46,12 @@ update_yaml_field() {
   echo "Field '$field_name' in '$yaml_file' updated to '$new_contents'."
 }
 
+# Update feilds in data.yaml with working dataset paths
 update_yaml_field "${data_dir}/data.yaml" "train" "${data_dir}/train"
 update_yaml_field "${data_dir}/data.yaml" "val" "${data_dir}/val"
 update_yaml_field "${data_dir}/data.yaml" "test" "${data_dir}/test"
 
-
-
+# Run Training
 touch ./TRAINING_IN_PROGRESS.txt
 cd ${data_dir}
 yolo task=detect \

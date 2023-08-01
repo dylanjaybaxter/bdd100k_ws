@@ -1,5 +1,5 @@
 #!bin/bash
-docker build -f ./Dockerfile \
+docker build -f ./proccessing/Dockerfile \
     --build-arg dst="/app/dataset/1par_yolo_mots/" \
     --build-arg src="/app/dataset/bdd100k/" \
      -t processingimage .
