@@ -148,7 +148,7 @@ echo "************************ _______| **************************"
 echo "************************************************************"
 
 # Change Permissions of Written Files
-chmod -R 777 "/workspace/dataset/"
+find . -type d -name "/workspace/dataset/yolo_mots/par*/${project_train}" -exec chmod -R 777 {} \;
 
 echo " Final validation not implemented..."
 

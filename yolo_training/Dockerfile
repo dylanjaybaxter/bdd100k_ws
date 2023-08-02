@@ -1,6 +1,10 @@
 #Using Pytorch/CUDA Docker
 FROM ultralytics/ultralytics
 
+# Set environment variables for UID and GID
+ARG UID_VAR=1000
+ARG GID_VAR=1000
+
 # Import Requirements
 RUN pip install --upgrade pip
 RUN pip install ultralytics
@@ -15,5 +19,11 @@ WORKDIR /workspace
 # Copy Files to Working Directory
 COPY . /workspace
 
-# When started run the training
-CMD sh run_standard.sh config.yaml
+# Create a new group and user with specific UID and GID
+RUN groupadd -g ${GID_VAR} mygroup && useradd -u ${UID_VAR} -g mygroup -m myuser
+
+# Set the default user to the newly created user
+USER myuser
+
+# When started, run the training
+CMD sh run_partitions.sh config.yaml
