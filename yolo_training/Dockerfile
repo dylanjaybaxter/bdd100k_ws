@@ -20,10 +20,10 @@ WORKDIR /workspace
 COPY . /workspace
 
 # Create a new group and user with specific UID and GID
-RUN groupadd -g ${GID_VAR} mygroup && useradd -u ${UID_VAR} -g mygroup -m myuser
+# RUN groupadd -g ${GID_VAR} mygroup && useradd -u ${UID_VAR} -g mygroup -m myuser
 
 # Set the default user to the newly created user
-USER myuser
+# USER myuser
 
 # When started, run the training
 CMD sh run_partitions.sh config.yaml
