@@ -13,7 +13,7 @@ global_epochs: 1
 project_train: "YOLOBDD"
 experiment_train: "initial_100_default"
 data_dir: "/workspace/dataset/yolo_mots"
-model: "/workspace/dataset/yolo_mots/par11/YOLOBDD/initial_100_default_par11e30/weights/best.pt"
+model: "/workspace/dataset/yolo_mots/par11/YOLOBDD/initial_100_default_par11e29/weights/best.pt"
 batch: -1
 epochs: 1
 patience: 25
