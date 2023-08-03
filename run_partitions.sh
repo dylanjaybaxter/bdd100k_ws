@@ -108,7 +108,6 @@ while [ "$z" -le "$global_epochs" ]; do
             if [ "$initial" -eq 1 ]; then
                 initial=0
                 sh train.sh config_temp.yaml
-                update_yaml_field "config_temp.yaml" "" ""
                 break;
             fi
             # If checkpoint found, proceed with training
