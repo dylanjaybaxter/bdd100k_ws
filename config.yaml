@@ -11,9 +11,9 @@ global_epochs: 1
 
 ## Training Configuration for YOLOv8
 project_train: "YOLOBDD"
-experiment_train: "test_run"
-data_dir: "/workspace/dataset/1par_yolo_mots/par1/"
-model: "yolov8n.pt"
+experiment_train: "initial_100_default"
+data_dir: "/workspace/dataset/yolo_mots/par1"
+model: "/workspace/dataset/yolo_mots/par11/YOLOBDD/initial_100_default_par11e30/weights/best.pt"
 batch: -1
 epochs: 1
 patience: 25
