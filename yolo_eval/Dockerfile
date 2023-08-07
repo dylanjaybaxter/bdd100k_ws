@@ -20,4 +20,4 @@ WORKDIR /workspace
 COPY . /workspace
 
 # When started, run the training
-CMD sh eval.sh config.yaml
+CMD sh eval_partitions.sh config.yaml
