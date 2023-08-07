@@ -14,7 +14,7 @@ fi
 
 echo "***************************GPU INFO********************************"
 nvidia-smi
-echo "************************Beginning Training************************"
+echo "************************Beginning Evaluation************************"
 # Find the number or partitions in the dataset
 # Loop through the subdirectories in the provided path
 num_partitions=0  # Initialize num_partitions to zero
@@ -32,7 +32,7 @@ while true; do
 done
 
 # Output the result
-echo "Training on ${num_partitions} partitions"
+echo "Evaluating on ${num_partitions} partitions"
 
 # Read in config
 # Argument Setup: https://stackoverflow.com/questions/5014632/how-can-i-parse-a-yaml-file-from-a-linux-shell-script
@@ -81,7 +81,7 @@ chkpt_path=""
 max_wait_time=30
 check_interval=1
 # Loop from 1 to global_epochs
-z=1
+i=1
 while [ "$i" -le "$num_partitions" ]; do
     echo "************************Training Partition ${i}************************"
     update_yaml_field "config_temp.yaml" "data_dir" "${test_data_dir}/par${i}"
