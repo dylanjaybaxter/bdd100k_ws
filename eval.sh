@@ -54,20 +54,19 @@ update_yaml_field "${data_dir}/data.yaml" "test" "${data_dir}/test"
 # Create file paths for model and project
 exp_test_folder="${experiment_test}_test"
 project_test_folder="${project_test}_test"
-model_path="./${project_test}/${experiment_test}/weights/best.pt"
-
 
 # Run the evaluation with parameters
+cd ${data_dir}
 yolo task=detect \
   mode=val \
   project=${project_test_folder} \
   name=${exp_test_folder} \
-  model=${model_path} \
+  model=${model} \
   data="datasets/${newfile}" \
   save_json=${save_json} \
   iou=${iou} \
   conf=${confidence} 2>&1 | tee output.txt
-
-  mv output.txt ${project_test_folder}/${exp_test_folder}/
+cd -
+mv output.txt ${project_test_folder}/${exp_test_folder}/
 
 
