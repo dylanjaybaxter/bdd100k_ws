@@ -50,7 +50,7 @@ copy_paste: 0.0
 
 
 ## Test Evalutaion Configuration Parameters
-test_data_dir: "/workspace/dataset"
+test_data_dir: "/workspace/dataset/yolo_mots"
 confidence: 0.001
 iou: 0.6
 save_json: True

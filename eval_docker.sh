@@ -4,4 +4,4 @@ docker build -f ./yolo_eval/Dockerfile \
      -t evalimage .
 docker run -v bdd100k-data:/workspace/dataset \
      --gpus all \
-     --ipc=host evalimage 
+     --ipc=host -it evalimage 
