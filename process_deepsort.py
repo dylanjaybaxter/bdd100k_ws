@@ -174,13 +174,15 @@ def main_func(args):
 
 def print_dataset_stats(path):
     num_images = []
+    print("Scanning dirs...")
     obj_dirs = [x for x in os.listdir(path) if os.path.isdir(join(path, x))]
     total_objects = len(obj_dirs)
     total_inst = 0
     for dir in obj_dirs:
+        print(f"\rCounting Files...{total_inst}")
         total_inst += len([x for x in os.listdir(join(path,dir)) if os.path.isfile(join(path,dir,x))])
     average_inst = total_inst/total_objects
-    print(f"{path} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
+    print(f"\r{path} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
 
 
 if __name__ == '__main__':
