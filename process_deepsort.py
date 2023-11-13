@@ -72,9 +72,10 @@ def main_func(args):
         existing_dirs = [x[0] for x in os.walk(split_path)]
         # Prune unfinished and small data
         for i, dir in enumerate(existing_dirs):
-            files = [f for f in os.listdir(join(split_path, dir)) if isfile(join(split_path, dir, f))]
-            if len(files) < 2:
-                del files[i]
+            if os.path.exists(join(split_path, dir)):
+                files = [f for f in os.listdir(join(split_path, dir)) if isfile(join(split_path, dir, f))]
+                if len(files) < 2:
+                    del existing_dirs[i]
 
         skipping = True
 
