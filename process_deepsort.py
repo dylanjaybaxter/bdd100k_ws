@@ -35,7 +35,6 @@ def main_func(args):
     overwrite_dataset = args.owrt
     object_limit = args.limit
     preview = args.prev
-    partition_limit = args.plimit
     port = args.port
     partition_number = 1
 
