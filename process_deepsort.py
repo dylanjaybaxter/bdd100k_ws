@@ -68,10 +68,10 @@ def main_func(args):
 
         # Get existing image labels from the labels folder
         print("Checking existing data...")
-        _,existing_dirs,_ = os.walk(split_path)
+        existing_dirs = [thing[1] for thing in os.walk(split_path)]
         # Prune unfinished and small data
         for i, dir in enumerate(existing_dirs):
-            _,_,files = os.walk(os.path.join(split_path, dir))
+            files = [thing[2] for thing in os.walk(os.path.join(split_path, dir))]
             if len(files) < 2:
                 files.remove(i)
 
