@@ -74,7 +74,7 @@ def main_func(args):
         for i, dir in enumerate(existing_dirs):
             files = [f for f in os.listdir(join(split_path, dir)) if isfile(join(split_path, dir, f))]
             if len(files) < 2:
-                files.remove(i)
+                del files[i]
 
         skipping = True
 
