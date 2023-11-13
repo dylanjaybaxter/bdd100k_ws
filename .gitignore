@@ -2,3 +2,7 @@
 YOLOBDD/
 yolov8n.pt
 TRAINING_IN_PROGRESS.txt
+*.zip
+*.zip.md5
+datasets/
+*.jpg
