@@ -26,7 +26,8 @@ def init_parser():
     parser.add_argument('--prev', type=bool, default=False, help='Preview conversion')
     parser.add_argument('--owrt', type=bool, default=False, help='Overwrite Dataset')
     parser.add_argument('--limit', type=int, default=object_limit_d, help='Limit of images processed')
-    parser.add_argument('--port', type=int, default=port_d, help="port to publish previews")
+    parser.add_argument('--port', type=int, default=port_d, help="Port to publish previews")
+    parser.add_argument('--diag', type=bool, default=False, help="Diagostic information on the dataset")
     return parser
 
 def main_func(args):
@@ -37,6 +38,7 @@ def main_func(args):
     object_limit = args.limit
     preview = args.prev
     port = args.port
+    diagnose = args.diag
     partition_number = 1
 
     # Create Initial Partition
@@ -52,6 +54,20 @@ def main_func(args):
     print("Processing: "+str(num_train_samples)+" training samples + "+str(num_val_samples)+" validation samples")
     val_target = int(object_limit/3)
 
+    if diagnose:
+        for split in ["train", "val"]:
+            # Find the image and label paths for the split
+            split_path = join(dest_path, split)
+            total_objects = 0
+            num_images = []
+            for root,dirs,files in os.walk(split_path):
+                num_images.append(len(files))
+                total_objects += 1
+            total_inst = sum(num_images)
+            average_inst = total_inst/total_objects
+            print(f"{split} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
+
+
     # If previewing, setup streamwriter
     streamer = ImageStreamer(port=port, debug=False)
 
@@ -59,7 +75,6 @@ def main_func(args):
     # Main Loop for Train/Val Split
     for split in ["train", "val"]:
         # Find the image and label paths for the split
-        partition_number = 1
         label_path = os.path.join(source_path, "labels", "box_track_20", split)
         vid_path = os.path.join(source_path, "images", "track", split)
         split_path = os.path.join(dest_path, split)
@@ -132,6 +147,7 @@ def main_func(args):
                         save_path = os.path.join(split_path,id)
                         if not os.path.exists(save_path):
                             os.mkdir(save_path)
+                            objects_processed = objects_processed + 1
                             im_num = 0
                         else:
                             im_num = len(os.listdir(save_path))
@@ -151,9 +167,21 @@ def main_func(args):
                     break
 
             # Break out of videos if dataset limit is reached
-            objects_processed = objects_processed + 1
             if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val"):
                     break
+    
+    if diagnose:
+        for split in ["train", "val"]:
+            # Find the image and label paths for the split
+            split_path = join(dest_path, split)
+            total_objects = 0
+            num_images = []
+            for root,dirs,files in os.walk(split_path):
+                num_images.append(len(files))
+                total_objects += 1
+            total_inst = sum(num_images)
+            average_inst = total_inst/total_objects
+            print(f"{split} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
 
     print("Done!")
 
