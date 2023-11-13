@@ -2,6 +2,7 @@ import cv2 as cv
 import json
 import os
 import os.path as path
+from os.path import join, isfile
 import argparse
 from utils import class_dict
 from utils import clean_list, update_prog
@@ -68,10 +69,10 @@ def main_func(args):
 
         # Get existing image labels from the labels folder
         print("Checking existing data...")
-        existing_dirs = [thing[1] for thing in os.walk(split_path)]
+        existing_dirs = [x[0] for x in os.walk(split_path)]
         # Prune unfinished and small data
         for i, dir in enumerate(existing_dirs):
-            files = [thing[2] for thing in os.walk(os.path.join(split_path, dir))]
+            files = [f for f in os.listdir(join(split_path, dir)) if isfile(join(split_path, dir, f))]
             if len(files) < 2:
                 files.remove(i)
 
