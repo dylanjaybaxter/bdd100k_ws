@@ -58,15 +58,7 @@ def main_func(args):
         for split in ["train", "val"]:
             # Find the image and label paths for the split
             split_path = join(dest_path, split)
-            total_objects = 0
-            num_images = []
-            for root,dirs,files in os.walk(split_path):
-                num_images.append(len(files))
-                total_objects += 1
-            total_inst = sum(num_images)
-            average_inst = total_inst/total_objects
-            print(f"{split} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
-
+            print_dataset_stats(split_path)
 
     # If previewing, setup streamwriter
     streamer = ImageStreamer(port=port, debug=False)
@@ -175,16 +167,21 @@ def main_func(args):
         for split in ["train", "val"]:
             # Find the image and label paths for the split
             split_path = join(dest_path, split)
-            total_objects = 0
-            num_images = []
-            for root,dirs,files in os.walk(split_path):
-                num_images.append(len(files))
-                total_objects += 1
-            total_inst = sum(num_images)
-            average_inst = total_inst/total_objects
-            print(f"{split} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
+            print_dataset_stats(split_path)
+            
 
     print("Done!")
+
+def print_dataset_stats(path):
+    num_images = []
+    obj_dirs = [x for x in os.listdir(path) if os.path.isdir(join(path, x))]
+    total_objects = len(obj_dirs)
+    total_inst = 0
+    for dir in obj_dirs:
+        total_inst += len([x for x in os.listdir(join(path,dir)) if os.path.isfile(join(path,dir,x))])
+    average_inst = total_inst/total_objects
+    print(f"{path} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
+
 
 if __name__ == '__main__':
     args =  init_parser().parse_args()
