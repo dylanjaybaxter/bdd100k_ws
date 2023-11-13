@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Streaming Demonstration</title>
+  </head>
+  <body>
+    <h1>Live Video Streaming</h1>
+    <div>
+        <img id="videoFeed" src="{{ url_for('video_feed') }}">
+        <p id="description"></p>
+    </div>
+    <script>
+        // Fetch the description via an endpoint and update the HTML
+        function fetchDescription() {
+            fetch('/description')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('description').innerText = data;
+                });
+        }
+        // Periodically update the description (adjust the interval as needed)
+        setInterval(fetchDescription, 1000);
+    </script>
+    <script>
+        function updateImageSize() {
+            const img = document.getElementById('videoFeed');
+            img.onload = function() {
+                img.style.width = this.width + 'px';
+                img.style.height = this.height + 'px';
+            };
+        }
+        setInterval(updateImageSize, 100); // Update every 100 milliseconds
+    </script>
+  </body>
+</html>
