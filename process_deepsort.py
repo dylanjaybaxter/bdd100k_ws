@@ -153,14 +153,15 @@ def main_func(args):
                             im_num = len(os.listdir(save_path))
 
                         # Save roi to id folder
-                        cv.imwrite(os.path.join(save_path, f"{im_num}.jpg"), roi)
+                        if roi:
+                            cv.imwrite(os.path.join(save_path, f"{im_num}.jpg"), roi)
 
-                        if preview:
-                            desc = f"Object {objects_processed})({id}), Instance {instances_processed}"
-                            streamer.publish_frame(im=roi, desc=desc)
+                            if preview:
+                                desc = f"Object {objects_processed})({id}), Instance {instances_processed}"
+                                streamer.publish_frame(im=roi, desc=desc)
                         
-                        # Increment
-                        instances_processed = instances_processed + 1
+                            # Increment
+                            instances_processed = instances_processed + 1
                         
                 # Increment Frames Considered
                 if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val"):
