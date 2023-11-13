@@ -91,7 +91,7 @@ def main_func(args):
         for id in label_ids:
             # Update Display of Percentage
             if split=="train":
-                percent = (objects_processed/min(partition_limit, object_limit))*100
+                percent = (objects_processed/object_limit)*100
             elif split=="val":
                 percent = (objects_processed/val_target)*100
             update_prog(partition_number, percent)
