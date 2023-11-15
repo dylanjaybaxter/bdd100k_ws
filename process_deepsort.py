@@ -148,7 +148,7 @@ def main_func(args):
                             im_num = len(os.listdir(save_path))
 
                         # Save roi to id folder
-                        if roi:
+                        if roi is not None:
                             cv.imwrite(os.path.join(save_path, f"{im_num}.jpg"), roi)
 
                             if preview:
