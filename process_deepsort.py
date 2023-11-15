@@ -15,6 +15,7 @@ vid_path_d = "C:\\Users\\dylan\\Documents\\Data\\BDD100k_MOT202\\bdd100k\\"
 dest_path_d = "C:\\Users\\dylan\\Documents\\Data\\YOLO_MOTS"
 preview_d = False
 object_limit_d = 3000
+inst_limit_d = 10000
 overwrite_dataset_d = True
 port_d = 5000
 
@@ -25,7 +26,8 @@ def init_parser():
     parser.add_argument('--dst', type=str, default=dest_path_d, help='Path to save processed data')
     parser.add_argument('--prev', type=bool, default=False, help='Preview conversion')
     parser.add_argument('--owrt', type=bool, default=False, help='Overwrite Dataset')
-    parser.add_argument('--limit', type=int, default=object_limit_d, help='Limit of images processed')
+    parser.add_argument('--lim', type=int, default=object_limit_d, help='Limit of images processed')
+    parser.add_argument('--ilim', type=int, default=inst_limit_d, help='Limit of instances processed')
     parser.add_argument('--port', type=int, default=port_d, help="Port to publish previews")
     parser.add_argument('--diag', type=bool, default=False, help="Diagostic information on the dataset")
     return parser
@@ -36,6 +38,7 @@ def main_func(args):
     dest_path = args.dst
     overwrite_dataset = args.owrt
     object_limit = args.limit
+    inst_limit = args.ilim
     preview = args.prev
     port = args.port
     diagnose = args.diag
@@ -156,11 +159,11 @@ def main_func(args):
                             instances_processed = instances_processed + 1
                         
                 # Increment Frames Considered
-                if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val"):
+                if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val") or instances_processed > inst_limit:
                     break
 
             # Break out of videos if dataset limit is reached
-            if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val"):
+            if (objects_processed >= object_limit and split=="train") or (objects_processed >= val_target and split=="val") or instances_processed > inst_limit:
                     break
     
     if diagnose:
