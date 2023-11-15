@@ -37,7 +37,7 @@ def main_func(args):
     source_path = args.src
     dest_path = args.dst
     overwrite_dataset = args.owrt
-    object_limit = args.limit
+    object_limit = args.lim
     inst_limit = args.ilim
     preview = args.prev
     port = args.port
