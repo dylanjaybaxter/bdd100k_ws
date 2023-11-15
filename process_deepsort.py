@@ -184,7 +184,7 @@ def print_dataset_stats(path):
     for dir in obj_dirs:
         print(f"\rCounting Files...{total_inst}")
         total_inst += len([x for x in os.listdir(join(path,dir)) if os.path.isfile(join(path,dir,x))])
-    average_inst = total_inst/total_objects
+    average_inst = total_inst/total_objects if (total_objects != 0) else 0
     print(f"\r{path} Dataset: {total_objects} objects, {total_inst} instances, {average_inst} average inst/obj")
 
 
